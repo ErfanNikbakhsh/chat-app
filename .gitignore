@@ -1,0 +1,8 @@
+# Dependency directories
+node_modules/
+
+# Dotenv environment variables file
+*.env
+
+# Uploaded files
+public/images
