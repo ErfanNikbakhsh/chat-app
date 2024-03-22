@@ -1,20 +1,64 @@
 const socket = io();
 
+// Elements
+const $messageForm = document.querySelector('#message-form');
+const $messageFormInput = $messageForm.querySelector('input');
+const $messageFormButton = $messageForm.querySelector('button');
+const $sendLocationButton = document.querySelector('#send-location');
+const $messages = document.querySelector('#messages');
+
+// Templates
+const messageTemplate = document.querySelector('#message-template').innerHTML;
+const locationTemplate = document.querySelector('#location-template').innerHTML;
+
 socket.on('message', (message) => {
   console.log(message);
+
+  const html = Mustache.render(messageTemplate, {
+    message: message.text,
+    createdAt: moment(message.createdAt).format('h:mm a'),
+  });
+  $messages.insertAdjacentHTML('beforeend', html);
 });
 
-document.querySelector('#message-form').addEventListener('submit', (e) => {
+socket.on('locationMessage', (location) => {
+  console.log(location);
+
+  const html = Mustache.render(locationTemplate, {
+    location: location.url,
+    createdAt: moment(location.createdAt).format('h:mm a'),
+  });
+  $messages.insertAdjacentHTML('beforeend', html);
+});
+
+$messageForm.addEventListener('submit', (e) => {
   e.preventDefault();
 
-  let message = e.target.elements.message.value;
+  // Disable the form
+  $messageFormButton.setAttribute('disabled', 'disabled');
 
-  socket.emit('sendMessage', message);
-  message = '';
+  const message = e.target.elements.message.value;
+
+  socket.emit('sendMessage', message, (error) => {
+    // Enable the form after sending the message
+    $messageFormButton.removeAttribute('disabled');
+
+    $messageFormInput.value = '';
+    $messageFormInput.focus();
+
+    if (error) {
+      return console.log(error);
+    }
+
+    console.log('Message delivered!');
+  });
 });
 
-document.querySelector('#send-location').addEventListener('click', () => {
+$sendLocationButton.addEventListener('click', (e) => {
   if (!navigator.geolocation) return alert('Geolocation is not supported by your browser.');
+
+  // Disable the button
+  $sendLocationButton.setAttribute('disabled', 'disabled');
 
   navigator.geolocation.getCurrentPosition(showPosition, showError);
 });
@@ -25,7 +69,12 @@ const showPosition = (position) => {
     longitude: position.coords.longitude,
   };
 
-  socket.emit('sendLocation', location);
+  socket.emit('sendLocation', location, () => {
+    console.log('Location shared');
+
+    // Enable the button
+    $sendLocationButton.removeAttribute('disabled');
+  });
 };
 
 const showError = (error) => {
@@ -40,4 +89,7 @@ const showError = (error) => {
       console.log('The request to get user location timed out.');
       break;
   }
+
+  // Enable the button
+  $sendLocationButton.removeAttribute('disabled');
 };
