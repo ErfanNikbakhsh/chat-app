@@ -3,16 +3,49 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Chat App</title>
+    <link rel="shortcut icon" href="./img/favicon.png" type="image/x-icon" />
+    <link rel="stylesheet" href="./css/styles.min.css" />
   </head>
   <body>
-    <h1>chat app</h1>
-    <form id="message-form">
-      <input placeholder="Please enter your message" type="text" name="message" />
-      <button type="submit">send</button>
-    </form>
+    <div class="chat">
+      <div class="chat__sidebar"></div>
+      <div class="chat__main">
+        <div id="messages" class="chat__messages"></div>
 
-    <button id="send-location">Send location</button>
+        <div class="compose">
+          <form id="message-form">
+            <input placeholder="Please enter your message" type="text" name="message" />
+            <button type="submit">Send</button>
+          </form>
+          <button id="send-location">Send location</button>
+        </div>
+      </div>
+    </div>
+
+    <script id="message-template" type="text/html">
+      <div class="message">
+        <p>
+          <span class="message__name">Some User Name</span>
+          <span class="message__meta">{{createdAt}}</span>
+        </p>
+        <p>{{message}}</p>
+      </div>
+    </script>
+
+    <script id="location-template" type="text/html">
+      <div class="message">
+        <p>
+          <span class="message__name">Some User Name</span>
+          <span class="message__meta">{{createdAt}}</span>
+        </p>
+        <p><a href="{{location}}" target="_blank">My current location</a></p>
+      </div>
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qs/dist/qs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mustache@latest"></script>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="./js/chat.js"></script>
